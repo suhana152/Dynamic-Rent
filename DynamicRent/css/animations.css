@@ -1,0 +1,67 @@
+/* ==========================================================================
+   DynamicRent — Animations
+   ========================================================================== */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes float-slow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+@keyframes ripple { to { transform: scale(3); opacity: 0; } }
+@keyframes ticker-tick { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes gradient-move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes underline-grow { from { width: 0; } to { width: 100%; } }
+
+.float-anim { animation: float-y 6s ease-in-out infinite; }
+.float-anim-slow { animation: float-slow 9s ease-in-out infinite; }
+.dot-pulse { animation: pulse-dot 1.8s ease-in-out infinite; }
+.price-tick { animation: ticker-tick 420ms var(--ease-out); }
+
+/* Scroll reveal (paired with IntersectionObserver in animations.js) */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+.reveal-scale { opacity: 0; transform: scale(0.92); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.reveal-scale.is-visible { opacity: 1; transform: scale(1); }
+.reveal-left { opacity: 0; transform: translateX(-32px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.reveal-left.is-visible { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(32px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+.reveal-right.is-visible { opacity: 1; transform: translateX(0); }
+
+/* Stagger children of a revealed container */
+.reveal-stagger > * { opacity: 0; transform: translateY(22px); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 320ms; }
+.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 400ms; }
+.reveal-stagger.is-visible > * { opacity: 1; transform: translateY(0); }
+
+.toast-enter { animation: fade-in-up var(--dur-base) var(--ease-out); }
+.modal-scale-in { animation: scale-in var(--dur-base) var(--ease-out); }
+
+/* Ripple effect host */
+.ripple-host { position: relative; overflow: hidden; }
+.ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.5); transform: scale(0); pointer-events: none; animation: ripple 600ms ease-out; }
+
+/* Underline draw-on for headings */
+.underline-draw { position: relative; display: inline-block; }
+.underline-draw::after { content: ''; position: absolute; left: 0; bottom: -4px; height: 2px; background: var(--accent-highlight); width: 0; }
+.underline-draw.is-visible::after { animation: underline-grow 700ms var(--ease-out) forwards; }
+
+/* Animated gradient background for hero orbs / CTA */
+.gradient-anim { background-size: 200% 200%; animation: gradient-move 10s ease infinite; }
+
+/* Button hover glow */
+.glow-hover { position: relative; }
+.glow-hover::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; background: radial-gradient(circle, rgba(190,115,80,0.35), transparent 70%); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); z-index: -1; }
+.glow-hover:hover::before { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .float-anim, .float-anim-slow, .dot-pulse, .gradient-anim { animation: none !important; }
+  .reveal, .reveal-scale, .reveal-left, .reveal-right, .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
+}
+
+@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }

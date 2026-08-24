@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f1",
+    "question": "How is the final rental price calculated?",
+    "answer": "We start with the base daily price and multiply it by your rental duration. From there we apply a demand multiplier based on how sought-after the item currently is, adjust for lead time and weekends, subtract any duration or coupon discounts, and arrive at your final total. Every step is shown on the pricing page and again in your booking summary before you confirm."
+  },
+  {
+    "id": "f2",
+    "question": "What is a demand tier and why does it change the price?",
+    "answer": "Demand tier reflects how many people are currently interested in a listing relative to how many are available. Low demand items are priced closer to base rate, while high or peak demand items carry a modest premium. It moves in both directions — off-peak dates are often priced below the base rate."
+  },
+  {
+    "id": "f3",
+    "question": "Can I get a discount for booking early?",
+    "answer": "Yes. Booking more than 14 days ahead of your pickup date unlocks an early-bird discount, applied automatically and shown in your price breakdown. Booking inside 48 hours of pickup may add a last-minute charge instead, which is also disclosed upfront."
+  },
+  {
+    "id": "f4",
+    "question": "Do longer rentals cost less per day?",
+    "answer": "Generally, yes. Rentals of 7 days or more receive a duration discount, and 14 days or more receive a larger one. The discount is calculated on the subtotal after demand and weekend adjustments, so it's always visible as its own line item."
+  },
+  {
+    "id": "f5",
+    "question": "How do coupon codes work?",
+    "answer": "Enter a valid code at booking and it's applied as a final percentage or fixed reduction on top of every other adjustment. Invalid or expired codes are flagged immediately with a clear message rather than silently ignored."
+  },
+  {
+    "id": "f6",
+    "question": "Is a security deposit always required?",
+    "answer": "It depends on the category. Vehicles, drones, cameras, and construction equipment typically require a refundable deposit, listed on the rental's details page. Apartments, villas, and rooms generally don't, unless stated in the listing's policies."
+  },
+  {
+    "id": "f7",
+    "question": "Can I cancel or change my booking?",
+    "answer": "Most listings allow free cancellation up to a set window before pickup or check-in, shown in that listing's policies. After that window, cancellation terms vary by category and are always disclosed before you confirm."
+  },
+  {
+    "id": "f8",
+    "question": "Is DynamicRent available outside the browser demo?",
+    "answer": "This build is a self-contained frontend demo running entirely on local data and your browser's storage. A future phase will connect it to a live backend so bookings, accounts, and pricing sync across devices."
+  }
+]

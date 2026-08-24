@@ -1,0 +1,18 @@
+[
+  { "id": "cars", "name": "Cars", "icon": "car", "description": "Everyday drives for everyday plans", "count": 4 },
+  { "id": "luxury-cars", "name": "Luxury Cars", "icon": "luxury-car", "description": "Arrive the way the moment deserves", "count": 3 },
+  { "id": "motorcycles", "name": "Motorcycles", "icon": "motorcycle", "description": "Two wheels, open road", "count": 2 },
+  { "id": "bicycles", "name": "Bicycles", "icon": "bicycle", "description": "Slow travel, close to the ground", "count": 2 },
+  { "id": "apartments", "name": "Apartments", "icon": "apartment", "description": "A home base, wherever you land", "count": 3 },
+  { "id": "villas", "name": "Villas", "icon": "villa", "description": "Space, privacy, and a view worth waking up to", "count": 3 },
+  { "id": "rooms", "name": "Rooms", "icon": "room", "description": "Simple, quiet, well kept", "count": 2 },
+  { "id": "camping-gear", "name": "Camping Gear", "icon": "camping", "description": "Everything but the campfire", "count": 2 },
+  { "id": "drones", "name": "Drones", "icon": "drone", "description": "A new vantage point", "count": 2 },
+  { "id": "cameras", "name": "Cameras", "icon": "camera", "description": "Capture it properly", "count": 2 },
+  { "id": "gaming-consoles", "name": "Gaming Consoles", "icon": "console", "description": "Weekend-ready, box fresh", "count": 2 },
+  { "id": "laptops", "name": "Laptops", "icon": "laptop", "description": "Work from anywhere, properly", "count": 2 },
+  { "id": "photography-equipment", "name": "Photography Equipment", "icon": "photography", "description": "Lenses, lighting, and everything between", "count": 2 },
+  { "id": "construction-equipment", "name": "Construction Equipment", "icon": "construction", "description": "The right tool, on your schedule", "count": 2 },
+  { "id": "sports-equipment", "name": "Sports Equipment", "icon": "sports", "description": "Gear up without the commitment", "count": 2 },
+  { "id": "party-equipment", "name": "Party Equipment", "icon": "party", "description": "For the nights worth planning", "count": 2 }
+]

@@ -1,0 +1,156 @@
+/* ==========================================================================
+   DynamicRent — Design Tokens
+   Palette: warm ivory ground, sage as primary accent, dusty blue + olive as
+   secondary accents, terracotta and gold used sparingly as highlight-only.
+   ========================================================================== */
+
+:root {
+  /* ---- Color: surfaces ---- */
+  --c-ivory: #F6F1E6;
+  --c-pearl: #FCFAF4;
+  --c-sand: #EEE3CE;
+  --c-sand-deep: #E4D5B7;
+  --c-cream: #FAF5EA;
+
+  /* ---- Color: text ---- */
+  --c-charcoal: #2B2620;
+  --c-brown: #4A4034;
+  --c-slate: #6B6459;
+  --c-slate-light: #8C8577;
+
+  /* ---- Color: accents ---- */
+  --c-sage: #7C8C6A;
+  --c-sage-dark: #5F6F50;
+  --c-sage-light: #A9B79A;
+  --c-dustyblue: #6C8699;
+  --c-dustyblue-dark: #4F6577;
+  --c-olive: #857B4E;
+  --c-terracotta: #BE7350;
+  --c-coral: #D98F6F;
+  --c-ocean: #3F6B71;
+  --c-gold: #B99653;
+
+  /* ---- Semantic ---- */
+  --c-success: #6B8F5C;
+  --c-error: #B5573F;
+  --c-warning: #C0913E;
+
+  /* ---- Surfaces mapped ---- */
+  --bg-body: var(--c-ivory);
+  --bg-card: var(--c-pearl);
+  --bg-raised: #FFFFFF;
+  --bg-inverse: var(--c-charcoal);
+  --text-primary: var(--c-charcoal);
+  --text-secondary: var(--c-slate);
+  --text-muted: var(--c-slate-light);
+  --text-inverse: var(--c-cream);
+  --accent-primary: var(--c-sage);
+  --accent-primary-dark: var(--c-sage-dark);
+  --accent-secondary: var(--c-dustyblue);
+  --accent-highlight: var(--c-terracotta);
+  --accent-gold: var(--c-gold);
+  --border-soft: rgba(43, 38, 32, 0.10);
+  --border-softer: rgba(43, 38, 32, 0.06);
+
+  /* ---- Typography ---- */
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body: 'Manrope', -apple-system, sans-serif;
+
+  --fs-hero: clamp(3rem, 3.2vw + 2rem, 6.2rem);
+  --fs-h1: clamp(2.4rem, 1.6vw + 1.8rem, 3.6rem);
+  --fs-h2: clamp(1.9rem, 1.2vw + 1.4rem, 2.7rem);
+  --fs-h3: clamp(1.4rem, 0.6vw + 1.2rem, 1.9rem);
+  --fs-h4: clamp(1.15rem, 0.3vw + 1.05rem, 1.35rem);
+  --fs-lg: 1.15rem;
+  --fs-base: 1rem;
+  --fs-sm: 0.875rem;
+  --fs-xs: 0.75rem;
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.3;
+  --lh-normal: 1.6;
+  --lh-loose: 1.85;
+
+  /* ---- Spacing scale ---- */
+  --sp-3xs: 0.25rem;
+  --sp-2xs: 0.5rem;
+  --sp-xs: 0.75rem;
+  --sp-sm: 1rem;
+  --sp-md: 1.5rem;
+  --sp-lg: 2.25rem;
+  --sp-xl: 3.5rem;
+  --sp-2xl: 5.5rem;
+  --sp-3xl: 8.5rem;
+
+  /* ---- Radius ---- */
+  --r-sm: 10px;
+  --r-md: 18px;
+  --r-lg: 28px;
+  --r-xl: 42px;
+  --r-organic: 63% 37% 54% 46% / 45% 48% 52% 55%;
+  --r-pill: 999px;
+
+  /* ---- Shadow ---- */
+  --shadow-sm: 0 2px 10px rgba(43, 38, 32, 0.06);
+  --shadow-md: 0 10px 30px rgba(43, 38, 32, 0.09);
+  --shadow-lg: 0 24px 60px rgba(43, 38, 32, 0.14);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 380ms;
+  --dur-slow: 640ms;
+
+  /* ---- Layout ---- */
+  --container: 1280px;
+  --container-narrow: 860px;
+  --nav-height: 84px;
+}
+
+[data-theme="dark"] {
+  --bg-body: #211D18;
+  --bg-card: #2A251E;
+  --bg-raised: #322C24;
+  --bg-inverse: var(--c-ivory);
+  --text-primary: #F3EDE0;
+  --text-secondary: #C9C0AE;
+  --text-muted: #948C7C;
+  --text-inverse: var(--c-charcoal);
+  --border-soft: rgba(246, 241, 230, 0.12);
+  --border-softer: rgba(246, 241, 230, 0.07);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Gradient pairs used as image placeholders across listing cards */
+.grad-sage-sand { background: linear-gradient(135deg, #97A487 0%, #EAD9B4 100%); }
+.grad-dustyblue-sand { background: linear-gradient(135deg, #7E97A8 0%, #E8DBBd 100%); }
+.grad-coral-sand { background: linear-gradient(135deg, #DE9A7C 0%, #F0DDB8 100%); }
+.grad-olive-sand { background: linear-gradient(135deg, #94895C 0%, #EBDCB6 100%); }
+.grad-charcoal-gold { background: linear-gradient(135deg, #362F27 0%, #B99653 100%); }
+.grad-charcoal-sage { background: linear-gradient(135deg, #322C24 0%, #8B9A7B 100%); }
+.grad-charcoal-terracotta { background: linear-gradient(135deg, #322C24 0%, #C77F5C 100%); }
+.grad-terracotta-sand { background: linear-gradient(135deg, #C77F5C 0%, #EFDFC0 100%); }
+.grad-sage-cream { background: linear-gradient(135deg, #8FA07E 0%, #FAF3E4 100%); }
+.grad-ocean-cream { background: linear-gradient(135deg, #4C7C82 0%, #F3EBDB 100%); }
+.grad-olive-cream { background: linear-gradient(135deg, #948A5C 0%, #F6EFE0 100%); }
+.grad-sand-charcoal { background: linear-gradient(135deg, #EFE1BF 0%, #322C24 100%); }
+.grad-ocean-sand { background: linear-gradient(135deg, #3F6B71 0%, #EAD9B0 100%); }
+.grad-sage-charcoal { background: linear-gradient(135deg, #8B9A7B 0%, #2B2620 100%); }
+.grad-ocean-terracotta { background: linear-gradient(135deg, #3F6B71 0%, #C77F5C 100%); }
+.grad-terracotta-olive { background: linear-gradient(135deg, #BE7350 0%, #857B4E 100%); }
+.grad-sage-terracotta { background: linear-gradient(135deg, #7C8C6A 0%, #C77F5C 100%); }
+.grad-dustyblue-cream { background: linear-gradient(135deg, #6C8699 0%, #F6EFE0 100%); }
+.grad-olive-charcoal { background: linear-gradient(135deg, #857B4E 0%, #2B2620 100%); }
+.grad-sage-sand2 { background: linear-gradient(135deg, #A9B79A 0%, #EAD9B4 100%); }
+.grad-dustyblue-charcoal { background: linear-gradient(135deg, #6C8699 0%, #2B2620 100%); }
+.grad-sand-ocean { background: linear-gradient(135deg, #EFE1BF 0%, #3F6B71 100%); }
+.grad-charcoal-sand { background: linear-gradient(135deg, #2B2620 0%, #EFE1BF 100%); }
+.grad-charcoal-dustyblue { background: linear-gradient(135deg, #2B2620 0%, #6C8699 100%); }
+.grad-sand-sage { background: linear-gradient(135deg, #EFE1BF 0%, #7C8C6A 100%); }
+.grad-gold-charcoal { background: linear-gradient(135deg, #B99653 0%, #2B2620 100%); }
+.grad-sage-gold { background: linear-gradient(135deg, #7C8C6A 0%, #B99653 100%); }
+.grad-cream-gold { background: linear-gradient(135deg, #FAF3E4 0%, #B99653 100%); }

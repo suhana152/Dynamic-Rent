@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Details — DynamicRent</title>
+<meta name="description" content="Full specifications, policies, reviews, and a live price breakdown for this rental.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header>
+  <nav class="site-nav" aria-label="Primary">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand"><span class="brand-mark">D</span>DynamicRent</a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="browse.html" class="nav-link">Browse</a></li>
+        <li><a href="pricing.html" class="nav-link">Pricing Engine</a></li>
+        <li><a href="about.html" class="nav-link">About</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4.2"/></svg>
+        </button>
+        <div class="select-wrap auto currency-wrap"><select class="currency-select" data-currency-select aria-label="Currency"></select></div>
+        <div data-auth-slot style="display:flex;gap:8px;align-items:center;"></div>
+        <button class="hamburger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+      <div class="nav-scroll-indicator"></div>
+    </div>
+  </nav>
+  <div class="mobile-menu">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="browse.html">Browse</a></li>
+      <li><a href="my-bookings.html">My Bookings</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li><a href="pricing.html">Pricing Engine</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Log in</a></li>
+      <li><a href="signup.html">Sign up</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="details-root">
+  <div class="container" style="padding-top:var(--sp-lg)">
+    <nav class="breadcrumb" id="details-breadcrumb" aria-label="Breadcrumb"></nav>
+
+    <div class="details-hero" id="details-gallery"></div>
+
+    <div class="details-layout">
+      <div class="details-main">
+        <h1 id="details-title" class="reveal"></h1>
+        <p class="loc muted reveal" id="details-location" style="margin-top:4px"></p>
+        <div class="reveal rating-display" id="details-rating"></div>
+        <div class="details-badges reveal" id="details-badges"></div>
+        <p class="reveal" id="details-description" style="margin-top:var(--sp-sm);color:var(--text-secondary);font-size:var(--fs-lg)"></p>
+
+        <hr class="divider">
+        <h3 class="reveal">Features</h3>
+        <div class="feature-pills reveal" id="details-features"></div>
+
+        <hr class="divider">
+        <h3 class="reveal">Specifications</h3>
+        <div class="spec-grid reveal" id="details-specs"></div>
+
+        <hr class="divider">
+        <h3 class="reveal">Rental policies</h3>
+        <ul class="policy-list reveal" id="details-policies"></ul>
+
+        <hr class="divider">
+        <h3 class="reveal">Customer reviews</h3>
+        <div id="details-reviews" class="reveal"></div>
+      </div>
+
+      <aside class="booking-widget reveal-right">
+        <div class="price-line">
+          <span class="amount" id="dw-price-amount">$0</span>
+        </div>
+        <span class="tag demand-badge" id="dw-demand">Demand</span>
+        <div class="date-row">
+          <div class="field">
+            <label for="dw-pickup">Pickup</label>
+            <input type="date" id="dw-pickup">
+          </div>
+          <div class="field">
+            <label for="dw-return">Return</label>
+            <input type="date" id="dw-return">
+          </div>
+        </div>
+        <div class="breakdown-list" id="dw-breakdown"></div>
+        <div style="display:flex;gap:8px;margin-top:var(--sp-md)">
+          <button class="btn btn-primary btn-block ripple-host" id="dw-book-btn">Book now</button>
+          <button class="btn-icon" id="dw-fav-btn" aria-label="Save to favorites"></button>
+        </div>
+        <p class="muted" style="font-size:var(--fs-xs);margin-top:var(--sp-sm);text-align:center">Free cancellation on most rentals — see policies above.</p>
+      </aside>
+    </div>
+
+    <section class="section">
+      <div class="section-head reveal">
+        <span class="eyebrow">Exclusive to DynamicRent</span>
+        <h2>Price forecast — next 30 days</h2>
+        <p>Every day is priced live by the same engine that built the total above. Greener days are cheaper; pick one straight from the calendar.</p>
+      </div>
+      <div class="price-calendar-card reveal-scale">
+        <div class="price-calendar-legend">
+          <span><i class="dot" style="background:var(--c-sage)"></i> Low</span>
+          <span><i class="dot" style="background:var(--c-gold)"></i> Medium</span>
+          <span><i class="dot" style="background:var(--c-terracotta)"></i> High / Peak</span>
+        </div>
+        <div class="price-calendar-grid" id="price-calendar"></div>
+        <p class="muted" id="price-calendar-hint" style="margin-top:var(--sp-sm);font-size:var(--fs-sm)">Click any day to set it as your pickup date above.</p>
+      </div>
+
+      <div class="price-watch-card reveal-scale mt-lg">
+        <div class="price-watch-copy">
+          <span class="eyebrow">Price watch</span>
+          <h3>Tell us your number. We'll flag it the moment it's true.</h3>
+          <p class="muted">Set a target nightly price for this rental. Every time you're on this page, DynamicRent checks today's calculated price against it — right in your browser, nothing sent anywhere.</p>
+        </div>
+        <form class="price-watch-form" id="price-watch-form">
+          <div class="field">
+            <label for="pw-target">Alert me when the price drops to</label>
+            <input type="number" id="pw-target" min="1" step="1" placeholder="e.g. 40">
+          </div>
+          <button type="submit" class="btn btn-primary ripple-host">Set price watch</button>
+        </form>
+        <div id="price-watch-status"></div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-bottom:0">
+      <div class="section-head reveal">
+        <span class="eyebrow">You might also like</span>
+        <h2>Related rentals</h2>
+      </div>
+      <div class="card-grid" id="details-related"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand" style="color:var(--c-cream)"><span class="brand-mark">D</span>DynamicRent</a>
+        <p>Intelligent rental pricing, powered by dynamic algorithms and shown to you in full.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul><li><a href="index.html">Home</a></li><li><a href="browse.html">Browse Rentals</a></li><li><a href="pricing.html">Pricing Engine</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul><li><a href="browse.html?category=cars">Cars</a></li><li><a href="browse.html?category=villas">Villas</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Get in touch</h4>
+        <ul><li>hello@dynamicrent.example</li><li>+1 (555) 019-2044</li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-year></span> DynamicRent. A Phase 1 frontend demo.</span>
+      <span>Built with HTML, CSS &amp; vanilla JavaScript</span>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/fetchData.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/pricing.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/script.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/dropdown.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/details.js"></script>
+</body>
+</html>

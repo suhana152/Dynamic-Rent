@@ -1,0 +1,60 @@
+/* ==========================================================================
+   DynamicRent — Responsive
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-visual { height: 380px; margin-top: var(--sp-lg); }
+  .details-layout { grid-template-columns: 1fr; }
+  .booking-widget { position: static; }
+  .simulator-grid { grid-template-columns: 1fr; }
+  .contact-layout { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .about-values { grid-template-columns: 1fr 1fr; }
+  .engine-cards { grid-template-columns: 1fr; }
+  .auth-visual { display: none; }
+  .auth-wrap { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .mobile-menu { display: block; }
+  .hero-search { grid-template-columns: 1fr; }
+  .stats-strip { grid-template-columns: 1fr 1fr; gap: var(--sp-lg); }
+  .stat-item:nth-child(odd) { border-right: 1px solid var(--border-softer); }
+  .stat-item:nth-child(even) { border-right: none; }
+  .stat-item { border-bottom: 1px solid var(--border-softer); padding-bottom: var(--sp-sm); }
+  .form-grid { grid-template-columns: 1fr; }
+  .details-hero { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; height: auto; aspect-ratio: 4/3; }
+  .details-hero .g1 { grid-column: 1 / 3; grid-row: 1; }
+  .footer-grid { grid-template-columns: 1fr; gap: var(--sp-lg); }
+  .footer-bottom { flex-direction: column; gap: var(--sp-xs); text-align: center; }
+}
+
+@media (max-width: 640px) {
+  .account-trigger-name { display: none; }
+  .account-trigger { padding: 0.3rem; }
+
+  :root { --sp-2xl: 3.5rem; --sp-3xl: 5rem; }
+  .container, .container-narrow { padding: 0 var(--sp-md); }
+  .hero-price-card { position: static; width: 100%; margin-top: var(--sp-sm); }
+  .hero-photo.p2 { display: none; }
+  .stats-strip { grid-template-columns: 1fr; padding: var(--sp-lg); }
+  .stat-item { border-right: none !important; }
+  .about-values { grid-template-columns: 1fr; }
+  .card-grid { grid-template-columns: 1fr; }
+  .cta-band { padding: var(--sp-xl) var(--sp-md); border-radius: var(--r-lg); }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .back-to-top { width: 42px; height: 42px; bottom: var(--sp-md); left: var(--sp-md); }
+  .toast-container { left: var(--sp-md); right: var(--sp-md); bottom: var(--sp-md); }
+  .toast { max-width: none; min-width: 0; }
+  .details-hero { grid-template-columns: 1fr; grid-template-rows: auto; aspect-ratio: auto; height: 260px; }
+  .details-hero .cell:not(.g1) { display: none; }
+  .details-hero .g1 { grid-column: 1; }
+  .site-footer { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+}
+
+@container (max-width: 400px) {
+  .rental-card .body { padding: var(--sp-xs); }
+}

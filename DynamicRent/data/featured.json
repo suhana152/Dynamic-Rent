@@ -1,0 +1,15 @@
+{
+  "featuredIds": ["l15", "l05", "l22", "l12", "l09", "l30"],
+  "destinations": [
+    { "name": "Santorini", "country": "Greece", "listingCount": 6, "gradient": "ocean-terracotta" },
+    { "name": "Kyoto", "country": "Japan", "listingCount": 9, "gradient": "sage-sand" },
+    { "name": "Lisbon", "country": "Portugal", "listingCount": 7, "gradient": "dustyblue-sand" },
+    { "name": "Chamonix", "country": "France", "listingCount": 5, "gradient": "olive-charcoal" }
+  ],
+  "stats": [
+    { "label": "Rentals listed", "value": 2400, "suffix": "+" },
+    { "label": "Cities covered", "value": 68, "suffix": "" },
+    { "label": "Avg. rating", "value": 4.8, "suffix": "/5" },
+    { "label": "Pricing transparency", "value": 100, "suffix": "%" }
+  ]
+}

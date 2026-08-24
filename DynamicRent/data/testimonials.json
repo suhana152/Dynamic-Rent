@@ -1,0 +1,44 @@
+[
+  {
+    "id": "t1",
+    "name": "Amara Osei",
+    "location": "Booked a villa in Puglia",
+    "quote": "I could see exactly why the price was what it was. Booked the same night, no second-guessing.",
+    "rating": 5
+  },
+  {
+    "id": "t2",
+    "name": "Daniel Kwarteng",
+    "location": "Rented a camera kit in Tokyo",
+    "quote": "The early-bird discount actually showed up at checkout, not just in the ad. Small thing, but it mattered.",
+    "rating": 5
+  },
+  {
+    "id": "t3",
+    "name": "Sofia Marchetti",
+    "location": "Rented a Fiat 500 in Florence",
+    "quote": "Booked a car in four minutes from a café table. The price breakdown made it feel honest.",
+    "rating": 4.5
+  },
+  {
+    "id": "t4",
+    "name": "Priya Nair",
+    "location": "Rented drone gear in Reykjavik",
+    "quote": "Weekend pricing was clearly flagged before I chose my dates. No surprise at the end.",
+    "rating": 5
+  },
+  {
+    "id": "t5",
+    "name": "Lucas Bergström",
+    "location": "Rented ski gear in Chamonix",
+    "quote": "Peak season, and the pricing still felt fair because I understood every line of it.",
+    "rating": 4.5
+  },
+  {
+    "id": "t6",
+    "name": "Hana Kobayashi",
+    "location": "Rented a bike in Kyoto",
+    "quote": "Quiet, well-kept, exactly as described. The kind of rental you don't have to think twice about.",
+    "rating": 5
+  }
+]
