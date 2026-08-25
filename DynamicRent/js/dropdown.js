@@ -32,6 +32,11 @@ const DRDropdown = (() => {
   /** Re-render the trigger label and the selected-option highlight from the live <select>. */
   const syncTrigger = (selectEl, trigger, listbox) => {
     const selected = selectEl.options[selectEl.selectedIndex];
+    // Every <select> on a page (currency, sort order, filters...) gets its
+    // own custom dropdown, so this same code runs once per dropdown. Since
+    // there can be several of these on one page, getElementById() (which
+    // needs a single, page-wide unique id) can't be used here — trigger
+    // .querySelector() correctly looks only inside THIS dropdown's trigger.
     const label = trigger.querySelector('.dropdown-trigger-label');
     if (label) label.textContent = selected ? selected.textContent : '';
     qsa('.dropdown-option', listbox).forEach((el, i) => {
@@ -51,6 +56,9 @@ const DRDropdown = (() => {
     const wrap = selectEl.closest('.select-wrap');
     if (!wrap) return;
 
+    // Scoped to `wrap` because a page can have multiple <select>s being
+    // enhanced (e.g. sort + currency dropdowns together) — getElementById()
+    // would only ever find the FIRST one, since ids must be unique per page.
     let trigger = wrap.querySelector('.dropdown-trigger');
     let listbox = wrap.querySelector('.dropdown-listbox');
 
@@ -94,6 +102,8 @@ const DRDropdown = (() => {
           return;
         }
         if (e.key === 'Enter' || e.key === ' ') {
+          // Same reasoning as above: scoped to THIS dropdown's listbox, since
+          // multiple dropdowns can be open across the page.
           const active = listbox.querySelector('.dropdown-option.is-active') || listbox.querySelector('.dropdown-option.is-selected');
           active?.click();
           return;

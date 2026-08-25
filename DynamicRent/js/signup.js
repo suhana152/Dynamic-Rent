@@ -40,9 +40,16 @@
     terms: { el: qs('#s-field-terms'), getValue: () => qs('#s-terms').checked, rules: [rules.checked] },
   };
 
+  // signup.html only has one signup form, and every input already has its
+  // own fixed id (s-name, s-email, s-phone, s-password, s-confirm, s-terms),
+  // so getElementById() can look each one up directly.
+  const fieldInputIds = {
+    name: 's-name', email: 's-email', phone: 's-phone',
+    password: 's-password', confirm: 's-confirm', terms: 's-terms',
+  };
   for (const key in fieldConfigs) {
     const { el, getValue, rules: ruleList } = fieldConfigs[key];
-    const input = el.querySelector('input');
+    const input = document.getElementById(fieldInputIds[key]);
     if (input) {
       input.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
       input.addEventListener('change', () => validation.validateField(el, getValue(), ruleList));

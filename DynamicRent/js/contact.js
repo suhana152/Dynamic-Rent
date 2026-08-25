@@ -35,8 +35,12 @@
     message: { el: qs('#c-field-message'), getValue: () => qs('#c-message').value, rules: [rules.required, rules.minLength(10)] },
   };
 
-  Object.values(fieldConfigs).forEach(({ el, getValue, rules: ruleList }) => {
-    const input = el.querySelector('input, select, textarea');
+  // contact.html only has one contact form, and every input already has its
+  // own fixed id (c-name, c-email, c-subject, c-message), so getElementById()
+  // can look each one up directly instead of searching inside `el`.
+  const fieldInputIds = { name: 'c-name', email: 'c-email', subject: 'c-subject', message: 'c-message' };
+  Object.entries(fieldConfigs).forEach(([key, { el, getValue, rules: ruleList }]) => {
+    const input = document.getElementById(fieldInputIds[key]);
     input?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
   });
 

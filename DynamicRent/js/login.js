@@ -22,9 +22,13 @@
     password: { el: qs('#l-field-password'), getValue: () => qs('#l-password').value, rules: [rules.required] },
   };
 
+  // login.html only has one login form, and every input already has its own
+  // fixed id (l-email, l-password), so getElementById() can look each one up
+  // directly instead of searching inside `el`.
+  const fieldInputIds = { email: 'l-email', password: 'l-password' };
   for (const key in fieldConfigs) {
     const { el, getValue, rules: ruleList } = fieldConfigs[key];
-    const input = el.querySelector('input');
+    const input = document.getElementById(fieldInputIds[key]);
     if (input) {
       input.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
     }

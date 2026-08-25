@@ -226,9 +226,16 @@
     },
   };
 
-  Object.values(fieldConfigs).forEach(({ el, getValue, rules: ruleList }) => {
-    const input = el.querySelector('input, select, textarea');
-    input?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
+  // booking.html only has one booking form, and every input in it already has
+  // its own fixed id and its own variable above (nameInput, emailInput,
+  // cardNumberInput...), so we reuse those directly instead of querying again.
+  const fieldInputs = {
+    fullName: nameInput, email: emailInput, phone: phoneInput, rental: rentalSelect,
+    pickup: pickupInput, ret: returnInput, quantity: quantityInput, cardName: cardNameInput,
+    cardNumber: cardNumberInput, cardExpiry: cardExpiryInput, cardCvc: cardCvcInput,
+  };
+  Object.entries(fieldConfigs).forEach(([key, { el, getValue, rules: ruleList }]) => {
+    fieldInputs[key]?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
   });
 
   form.addEventListener('submit', async (e) => {
@@ -236,6 +243,10 @@
     const isValid = validation.validateForm(fieldConfigs);
     if (!isValid) {
       ui.toast('Please fix the highlighted fields.', 'error');
+      // This has to stay querySelector(): it means "whichever field
+      // currently has an error" (could be any of the 11 fields above,
+      // depending on what the user typed), not one fixed element with a
+      // known id, so getElementById() isn't able to express this lookup.
       form.querySelector('.has-error input, .has-error select')?.focus();
       return;
     }

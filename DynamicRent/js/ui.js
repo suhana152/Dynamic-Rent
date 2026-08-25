@@ -57,13 +57,16 @@ const DRUi = (() => {
       <div class="modal modal-scale-in">
         <div class="modal-head">
           <h3>${title}</h3>
-          <button class="btn-icon" data-close-modal aria-label="Close">
+          <button id="modal-close-btn" class="btn-icon" data-close-modal aria-label="Close">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="modal-body">${contentHTML}</div>
       </div>`;
-    modalOverlay.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+    // This button is re-created fresh every time openModal() runs, but since
+    // there is only ever ONE modal on the page at a time, giving it a fixed
+    // id and looking it up with getElementById() is safe here.
+    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
     requestAnimationFrame(() => modalOverlay.classList.add('is-open'));
     document.body.style.overflow = 'hidden';
   };
@@ -180,6 +183,10 @@ const DRUi = (() => {
             </div>
           </div>`;
 
+        // [data-auth-slot] appears more than once per page (desktop nav +
+        // mobile menu both show the account widget), so this whole block runs
+        // once per slot. getElementById() would only ever find the first
+        // match on the page, so scoped querySelector() is required here.
         const trigger = slot.querySelector('[data-account-trigger]');
         const dropdown = slot.querySelector('[data-account-dropdown]');
         const closeDropdown = () => { dropdown.classList.remove('is-open'); trigger.setAttribute('aria-expanded', 'false'); };
@@ -194,6 +201,7 @@ const DRUi = (() => {
         });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDropdown(); });
 
+        // Same reasoning: scoped to this specific slot, not the whole page.
         slot.querySelector('[data-logout]')?.addEventListener('click', () => {
           window.DR.auth.logout();
           toast('Signed out. See you next time.', 'info');
@@ -273,10 +281,13 @@ const DRUi = (() => {
           <code>start-server.bat</code>) in this folder, then open
           <code>http://localhost:8000</code> instead.
         </span>
-        <button type="button" aria-label="Dismiss">&times;</button>
+        <button id="file-protocol-dismiss-btn" type="button" aria-label="Dismiss">&times;</button>
       </div>`;
     document.body.prepend(banner);
-    banner.querySelector('button').addEventListener('click', () => banner.remove());
+    // initFileProtocolWarning() only ever runs once per page load, so this
+    // banner and its button are always unique on the page — safe to use
+    // getElementById() here instead of a scoped querySelector().
+    document.getElementById('file-protocol-dismiss-btn').addEventListener('click', () => banner.remove());
   };
 
   const initAll = () => {

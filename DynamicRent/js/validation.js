@@ -28,6 +28,11 @@ const DRValidation = (() => {
    * message into a sibling `.error-msg` element.
    */
   const validateField = (fieldEl, value, ruleList) => {
+    // validateField() runs once per field on a form (name, email, password...),
+    // and every field has its own `.error-msg` element. getElementById()
+    // can't say "the error message belonging to THIS field" — it would just
+    // grab the first `.error-msg` on the whole page — so this has to stay a
+    // scoped querySelector() on fieldEl.
     const errorEl = fieldEl.querySelector('.error-msg');
     for (const rule of ruleList) {
       const result = rule(value);
@@ -46,6 +51,7 @@ const DRValidation = (() => {
 
   const clearField = (fieldEl) => {
     fieldEl.classList.remove('has-error', 'is-valid');
+    // Same reasoning as validateField() above — scoped to this one field.
     const errorEl = fieldEl.querySelector('.error-msg');
     if (errorEl) errorEl.textContent = '';
   };
