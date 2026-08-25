@@ -15,15 +15,17 @@
   const passwordInput = qs('#s-password');
   const strengthBar = qs('#s-strength-bar');
 
-  passwordInput?.addEventListener('input', () => {
-    const score = validation.passwordStrength(passwordInput.value);
-    const pct = (score / 4) * 100;
-    const colors = ['var(--c-error)', 'var(--c-error)', 'var(--c-warning)', 'var(--c-sage)', 'var(--c-success)'];
-    if (strengthBar) {
-      strengthBar.style.width = `${pct}%`;
-      strengthBar.style.background = colors[score];
-    }
-  });
+  if (passwordInput) {
+    passwordInput.addEventListener('input', () => {
+      const score = validation.passwordStrength(passwordInput.value);
+      const pct = (score / 4) * 100;
+      const colors = ['var(--c-error)', 'var(--c-error)', 'var(--c-warning)', 'var(--c-sage)', 'var(--c-success)'];
+      if (strengthBar) {
+        strengthBar.style.width = `${pct}%`;
+        strengthBar.style.background = colors[score];
+      }
+    });
+  }
 
   const fieldConfigs = {
     name: { el: qs('#s-field-name'), getValue: () => qs('#s-name').value, rules: [rules.required, rules.minLength(2)] },
@@ -38,11 +40,14 @@
     terms: { el: qs('#s-field-terms'), getValue: () => qs('#s-terms').checked, rules: [rules.checked] },
   };
 
-  Object.values(fieldConfigs).forEach(({ el, getValue, rules: ruleList }) => {
+  for (const key in fieldConfigs) {
+    const { el, getValue, rules: ruleList } = fieldConfigs[key];
     const input = el.querySelector('input');
-    input?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
-    input?.addEventListener('change', () => validation.validateField(el, getValue(), ruleList));
-  });
+    if (input) {
+      input.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
+      input.addEventListener('change', () => validation.validateField(el, getValue(), ruleList));
+    }
+  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
