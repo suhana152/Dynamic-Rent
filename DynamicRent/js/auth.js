@@ -62,7 +62,18 @@ const DRAuth = (() => {
 
   const currentUser = () => storage.getCurrentUser();
 
-  return { signup, login, logout, isLoggedIn, currentUser };
+  /**
+   * Guards a page that should only be visible to signed-in users.
+   * Call this at the top of any protected page — if nobody is logged
+   * in, it sends the visitor to the login page straight away.
+   */
+  const requireLogin = () => {
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+  };
+
+  return { signup, login, logout, isLoggedIn, currentUser, requireLogin };
 })();
 
 window.DR = window.DR || {};

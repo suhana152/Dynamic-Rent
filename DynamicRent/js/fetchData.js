@@ -53,6 +53,11 @@ const DRFetch = (() => {
         ${onRetry ? '<button class="btn btn-outline" data-retry>Try again</button>' : ''}
       </div>`;
     if (onRetry) {
+      // renderErrorCard() is a shared helper called for many different
+      // containers on a page (featured listings, testimonials, etc. can each
+      // fail and show their own error card), so this must stay scoped to
+      // THIS container — getElementById() can't target "the retry button
+      // inside this particular container."
       container.querySelector('[data-retry]')?.addEventListener('click', onRetry);
     }
   };

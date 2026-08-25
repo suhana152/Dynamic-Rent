@@ -6,6 +6,14 @@
  */
 
 const DRUtils = (() => {
+  // qs/qsa stay on querySelector(All) on purpose: they're called everywhere
+  // in this project with CLASS selectors (e.g. '.dropdown-listbox.is-open')
+  // and ATTRIBUTE selectors (e.g. '[data-theme-toggle]'), and often scoped to
+  // a specific element (scope) rather than the whole document. getElementById()
+  // only ever finds a single element by a unique id on the whole document, so
+  // it cannot do either of those things — swapping this helper would break
+  // every dropdown, modal, and form on the site.
+
   /** Shorthand querySelector */
   const qs = (sel, scope = document) => scope.querySelector(sel);
 
