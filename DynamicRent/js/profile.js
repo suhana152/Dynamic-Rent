@@ -142,8 +142,12 @@
     name: { el: qs('#p-field-name'), getValue: () => qs('#p-name').value, rules: [rules.required, rules.minLength(2)] },
     phone: { el: qs('#p-field-phone'), getValue: () => qs('#p-phone').value, rules: [rules.required, rules.phone] },
   };
-  Object.values(fieldConfigs).forEach(({ el, getValue, rules: ruleList }) => {
-    el.querySelector('input')?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
+  // The profile form only ever renders once per page, and each input already
+  // has its own fixed id (p-name, p-phone), so it's safe to look each one up
+  // directly with getElementById() instead of searching inside `el`.
+  const fieldInputIds = { name: 'p-name', phone: 'p-phone' };
+  Object.entries(fieldConfigs).forEach(([key, { el, getValue, rules: ruleList }]) => {
+    document.getElementById(fieldInputIds[key])?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
   });
   qs('#profile-form').addEventListener('submit', (e) => {
     e.preventDefault();
