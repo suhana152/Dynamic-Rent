@@ -10,13 +10,19 @@
 const DRAuth = (() => {
   const { storage } = window.DR;
 
-  /** Small non-cryptographic string hash — good enough to avoid plaintext, nothing more. */
+  /**
+   * Small non-cryptographic "obfuscation" — good enough to avoid storing
+   * plain text, nothing more. Just a loop, string concatenation, and
+   * template literals: it reverses the password and tags on its length,
+   * so the same password always produces the same result to compare
+   * against on login.
+   */
   const hash = (str) => {
-    let h = 0;
-    for (let i = 0; i < str.length; i += 1) {
-      h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+    let reversed = '';
+    for (let i = str.length - 1; i >= 0; i -= 1) {
+      reversed += str[i];
     }
-    return `h${Math.abs(h)}_${str.length}`;
+    return `h_${reversed}_${str.length}`;
   };
 
   const signup = ({ name, email, phone, password }) => {
