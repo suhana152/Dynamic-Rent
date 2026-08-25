@@ -128,11 +128,58 @@ const DRUtils = (() => {
   /** Read a query-string parameter from the current URL. */
   const getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
 
-  /** Basic email pattern check. */
-  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  /**
+   * Basic email check — no regex, just loops and comparisons (as taught
+   * in Operators/Loops): exactly one "@", nothing before/after it is
+   * blank, no spaces anywhere, and there's a "." inside the domain part
+   * that isn't the very first or very last character.
+   */
+  const isValidEmail = (value) => {
+    const email = String(value).trim();
+    if (email.length === 0) return false;
 
-  /** Basic phone check: 7-15 digits, optional +, spaces, dashes. */
-  const isValidPhone = (value) => /^\+?[0-9\s-]{7,15}$/.test(value);
+    let atCount = 0;
+    let atPosition = -1;
+    for (let i = 0; i < email.length; i += 1) {
+      if (email[i] === ' ') return false;
+      if (email[i] === '@') {
+        atCount += 1;
+        atPosition = i;
+      }
+    }
+    if (atCount !== 1) return false;
+    if (atPosition === 0 || atPosition === email.length - 1) return false;
+
+    let domain = '';
+    for (let i = atPosition + 1; i < email.length; i += 1) domain += email[i];
+
+    let hasDot = false;
+    for (let i = 0; i < domain.length; i += 1) {
+      if (domain[i] === '.' && i !== 0 && i !== domain.length - 1) hasDot = true;
+    }
+    return hasDot;
+  };
+
+  /**
+   * Basic phone check — no regex. Allows an optional leading "+", then
+   * digits, spaces, and dashes only, with the digit count between 7-15.
+   */
+  const isValidPhone = (value) => {
+    const phone = String(value).trim();
+    if (phone.length === 0) return false;
+
+    let start = 0;
+    if (phone[0] === '+') start = 1;
+
+    let digitCount = 0;
+    for (let i = start; i < phone.length; i += 1) {
+      const ch = phone[i];
+      const isDigit = ch >= '0' && ch <= '9';
+      if (!isDigit && ch !== ' ' && ch !== '-') return false;
+      if (isDigit) digitCount += 1;
+    }
+    return digitCount >= 7 && digitCount <= 15;
+  };
 
   /** Escape a string for safe insertion into innerHTML. */
   const escapeHTML = (str = '') => str.replace(/[&<>"']/g, (c) => ({

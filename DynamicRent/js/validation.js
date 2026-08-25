@@ -56,21 +56,33 @@ const DRValidation = (() => {
    */
   const validateForm = (fieldConfigs) => {
     let allValid = true;
-    Object.values(fieldConfigs).forEach(({ el, rules: ruleList, getValue }) => {
+    for (const key in fieldConfigs) {
+      const { el, rules: ruleList, getValue } = fieldConfigs[key];
       const value = getValue();
       const isValid = validateField(el, value, ruleList);
       if (!isValid) allValid = false;
-    });
+    }
     return allValid;
   };
 
-  /** Simple password strength score 0-4 used to drive the strength bar. */
+  /** Simple password strength score 0-4 used to drive the strength bar — loops and comparisons only, no regex. */
   const passwordStrength = (value) => {
+    const str = String(value);
     let score = 0;
-    if (value.length >= 8) score += 1;
-    if (/[A-Z]/.test(value)) score += 1;
-    if (/[0-9]/.test(value)) score += 1;
-    if (/[^A-Za-z0-9]/.test(value)) score += 1;
+    if (str.length >= 8) score += 1;
+
+    let hasUpper = false;
+    let hasNumber = false;
+    let hasSymbol = false;
+    for (let i = 0; i < str.length; i += 1) {
+      const ch = str[i];
+      if (ch >= 'A' && ch <= 'Z') hasUpper = true;
+      else if (ch >= '0' && ch <= '9') hasNumber = true;
+      else if (!(ch >= 'a' && ch <= 'z')) hasSymbol = true;
+    }
+    if (hasUpper) score += 1;
+    if (hasNumber) score += 1;
+    if (hasSymbol) score += 1;
     return score;
   };
 

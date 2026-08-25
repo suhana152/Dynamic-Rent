@@ -22,10 +22,13 @@
     password: { el: qs('#l-field-password'), getValue: () => qs('#l-password').value, rules: [rules.required] },
   };
 
-  Object.values(fieldConfigs).forEach(({ el, getValue, rules: ruleList }) => {
+  for (const key in fieldConfigs) {
+    const { el, getValue, rules: ruleList } = fieldConfigs[key];
     const input = el.querySelector('input');
-    input?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
-  });
+    if (input) {
+      input.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
+    }
+  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -33,7 +36,9 @@
       ui.toast('Please fix the highlighted fields.', 'error');
       return;
     }
-    const remember = qs('#l-remember')?.checked ?? true;
+    const rememberBox = qs('#l-remember');
+    let remember = true;
+    if (rememberBox) remember = rememberBox.checked;
     const result = auth.login({ email: qs('#l-email').value.trim(), password: qs('#l-password').value, remember });
     if (!result.ok) {
       ui.toast(result.message, 'error');
