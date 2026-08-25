@@ -33,15 +33,14 @@
   storage.addRecentlyViewed(listing.id);
   document.title = `${listing.title} — DynamicRent`;
 
-  // ---- Hero gallery (illustrated per-category, as a stand-in for real photography) ----
-  const catIconPath = core.CATEGORY_ICONS[listing.category] || core.CATEGORY_ICONS.cars;
-  const iconBadge = `<span class="cat-icon-badge">${core.iconSvg(catIconPath, 40)}</span>`;
+  // ---- Hero gallery (real photography, one shot per listing shown across the grid) ----
+  const galleryImg = (filter) => `<img class="thumb-fill" src="${listing.image}" alt="${escapeHTML(listing.title)}"${filter ? ` style="filter:${filter}"` : ''}>`;
   qs('#details-gallery').innerHTML = `
-    <div class="cell g1"><div class="thumb-fill with-icon grad-${listing.gradient}">${iconBadge}</div></div>
-    <div class="cell"><div class="thumb-fill with-icon grad-${listing.gradient}" style="filter:hue-rotate(12deg)">${iconBadge}</div></div>
-    <div class="cell"><div class="thumb-fill with-icon grad-${listing.gradient}" style="filter:hue-rotate(-12deg)">${iconBadge}</div></div>
-    <div class="cell"><div class="thumb-fill with-icon grad-${listing.gradient}" style="filter:brightness(1.08)">${iconBadge}</div></div>
-    <div class="cell more" data-more="+4 photos"><div class="thumb-fill with-icon grad-${listing.gradient}" style="filter:brightness(0.85)">${iconBadge}</div></div>`;
+    <div class="cell g1">${galleryImg()}</div>
+    <div class="cell">${galleryImg('hue-rotate(12deg)')}</div>
+    <div class="cell">${galleryImg('hue-rotate(-12deg)')}</div>
+    <div class="cell">${galleryImg('brightness(1.08)')}</div>
+    <div class="cell more" data-more="+4 photos">${galleryImg('brightness(0.85)')}</div>`;
 
   qs('#details-breadcrumb').innerHTML = `
     <a href="index.html">Home</a> <span>/</span>

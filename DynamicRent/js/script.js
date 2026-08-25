@@ -71,7 +71,7 @@ const DRCore = (() => {
     return `
       <article class="rental-card reveal" data-listing-id="${listing.id}">
         <div class="thumb">
-          <div class="thumb-fill with-icon grad-${listing.gradient}"><span class="cat-icon-badge">${iconSvg(CATEGORY_ICONS[listing.category] || CATEGORY_ICONS.cars, 34)}</span></div>
+          <img class="thumb-fill" src="${listing.image}" alt="${escapeHTML(listing.title)}" loading="lazy">
           ${listing.badge ? `<span class="badge">${escapeHTML(listing.badge)}</span>` : (demand ? `<span class="badge tier-${listing.demandTier}">${demand}</span>` : '')}
           <button class="fav-btn ripple-host ${isFav ? 'is-active' : ''}" data-fav-toggle="${listing.id}" aria-label="Save to favorites" aria-pressed="${isFav}">
             ${heartIcon(18)}
