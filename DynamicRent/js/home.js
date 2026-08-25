@@ -138,7 +138,8 @@
     const destGrid = qs('#destinations-grid');
     if (destGrid) {
       destGrid.innerHTML = featured.destinations.map((d) => `
-        <a class="dest-card reveal-scale grad-${d.gradient}" href="browse.html?q=${encodeURIComponent(d.name)}">
+        <a class="dest-card reveal-scale" href="browse.html?q=${encodeURIComponent(d.name)}">
+          <img class="dest-img" src="${d.image}" alt="${escapeHTML(d.name)}" loading="lazy">
           <div class="overlay">
             <h4>${escapeHTML(d.name)}</h4>
             <span>${escapeHTML(d.country)} · ${d.listingCount} rentals</span>

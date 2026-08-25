@@ -276,6 +276,7 @@
       listingTitle: listing.title,
       listingLocation: listing.location,
       listingGradient: listing.gradient,
+      listingImage: listing.image,
       fullName: nameInput.value.trim(),
       email: emailInput.value.trim(),
       phone: phoneInput.value.trim(),

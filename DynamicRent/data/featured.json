@@ -1,10 +1,10 @@
 {
   "featuredIds": ["l15", "l05", "l22", "l12", "l09", "l30"],
   "destinations": [
-    { "name": "Santorini", "country": "Greece", "listingCount": 6, "gradient": "ocean-terracotta" },
-    { "name": "Kyoto", "country": "Japan", "listingCount": 9, "gradient": "sage-sand" },
-    { "name": "Lisbon", "country": "Portugal", "listingCount": 7, "gradient": "dustyblue-sand" },
-    { "name": "Chamonix", "country": "France", "listingCount": 5, "gradient": "olive-charcoal" }
+    { "name": "Santorini", "country": "Greece", "listingCount": 6, "gradient": "ocean-terracotta", "image": "https://images.unsplash.com/photo-1756887406085-a689fbc8af33?auto=format&fit=crop&w=900&q=75" },
+    { "name": "Kyoto", "country": "Japan", "listingCount": 9, "gradient": "sage-sand", "image": "https://images.unsplash.com/photo-1762845872088-12c352bbb119?auto=format&fit=crop&w=900&q=75" },
+    { "name": "Lisbon", "country": "Portugal", "listingCount": 7, "gradient": "dustyblue-sand", "image": "https://images.unsplash.com/photo-1513199415658-c7d42394d1e8?auto=format&fit=crop&w=900&q=75" },
+    { "name": "Chamonix", "country": "France", "listingCount": 5, "gradient": "olive-charcoal", "image": "https://images.unsplash.com/photo-1711722804881-43bab99b2f7e?auto=format&fit=crop&w=900&q=75" }
   ],
   "stats": [
     { "label": "Rentals listed", "value": 2400, "suffix": "+" },

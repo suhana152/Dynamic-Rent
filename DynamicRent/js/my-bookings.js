@@ -48,7 +48,9 @@
 
     listEl.innerHTML += bookings.map((b) => `
       <div class="booking-item reveal" data-booking-id="${b.id}">
-        <div class="thumb-fill with-icon grad-${b.listingGradient || 'sage-sand'}"></div>
+        ${b.listingImage
+          ? `<img class="thumb-fill" src="${b.listingImage}" alt="${escapeHTML(b.listingTitle || '')}">`
+          : `<div class="thumb-fill with-icon grad-${b.listingGradient || 'sage-sand'}"></div>`}
         <div>
           <h4>${escapeHTML(b.listingTitle)}</h4>
           <span class="status-tag ${b.status}">${escapeHTML(b.status)}</span>
