@@ -4,7 +4,7 @@ A rental marketplace concept — cars, villas, gear, and more — built around o
 
 This is **Phase 1**: a frontend-only demo built with HTML5, CSS3, and vanilla JavaScript (ES6+). No frameworks, no build step, no backend — just a local JSON "database" and `localStorage` standing in for a real API, so the whole experience can be explored end to end in a browser.
 
-> 🔗 dynamic-rent-wvj6.vercel.app
+> 🔗 **Live Website:** https://dynamic-rent-wvj6.vercel.app/
 ## ✨ What's in it
 
 - **Browse & filter** a catalog of 37 listings across 16 categories (cars, luxury cars, motorcycles, villas, apartments, camping gear, drones, cameras, and more)
