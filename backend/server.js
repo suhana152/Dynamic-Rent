@@ -19,7 +19,8 @@ app.use((req, res, next) => {
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "DynamicRent server is running" });
 });
-
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
 // 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
