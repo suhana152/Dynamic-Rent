@@ -21,6 +21,7 @@ app.get("/api/health", (req, res) => {
 });
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/listings", require("./routes/listingRoutes"));
 // 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
