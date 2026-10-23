@@ -17,7 +17,7 @@ exports.getListings = async (req, res) => {
     const filter = {};
 
     if (category) filter.category = category.toLowerCase();
-    if (city) filter.city = new RegExp(city, "i");
+    if (city) filter.location = new RegExp(city, "i");
     if (search) filter.title = new RegExp(search, "i");
 
     if (minPrice || maxPrice) {

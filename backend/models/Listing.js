@@ -2,14 +2,15 @@ const mongoose = require("mongoose");
 
 const listingSchema = new mongoose.Schema(
   {
+    legacyId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     title: {
       type: String,
       required: [true, "Title is required"],
       trim: true,
-    },
-    description: {
-      type: String,
-      default: "",
     },
     category: {
       type: String,
@@ -17,21 +18,10 @@ const listingSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    city: {
+    location: {
       type: String,
-      required: [true, "City is required"],
+      required: [true, "Location is required"],
       trim: true,
-    },
-    basePrice: {
-      type: Number,
-      required: [true, "Base price is required"],
-      min: [1, "Price must be at least 1"],
-    },
-    demandScore: {
-      type: Number,
-      default: 0.5,
-      min: 0,
-      max: 1,
     },
     rating: {
       type: Number,
@@ -39,9 +29,47 @@ const listingSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
-    images: {
+    reviews: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    basePrice: {
+      type: Number,
+      required: [true, "Base price is required"],
+      min: [1, "Price must be at least 1"],
+    },
+    demandTier: {
+      type: String,
+      default: "medium",
+    },
+    badge: {
+      type: String,
+      default: "",
+    },
+    gradient: {
+      type: String,
+      default: "",
+    },
+    shortDescription: {
+      type: String,
+      default: "",
+    },
+    features: {
       type: [String],
       default: [],
+    },
+    specifications: {
+      type: Object,
+      default: {},
+    },
+    policies: {
+      type: [String],
+      default: [],
+    },
+    image: {
+      type: String,
+      default: "",
     },
     available: {
       type: Boolean,
