@@ -8,7 +8,7 @@ const Listing = require("./models/Listing");
 const dataPath = path.join(
   __dirname,
   "..",
-  "DynamicRent",
+  "frontend",
   "data",
   "listings.json"
 );
