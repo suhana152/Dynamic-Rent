@@ -9,7 +9,7 @@ const generateToken = (id) => {
 // POST /api/auth/register
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+        const { email, password } = req.body || {};
 
     if (!name || !email || !password) {
       return res
@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
 // POST /api/auth/login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+        const { email, password } = req.body || {};
 
     if (!email || !password) {
       return res
