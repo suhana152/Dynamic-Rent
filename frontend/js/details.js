@@ -114,18 +114,33 @@
   demandDisplay.textContent = demandInfo.label;
   demandDisplay.className = `tag demand-badge tier-${listing.demandTier}`;
 
-  const updateWidgetPrice = () => {
+  let quoteCounter = 0;
+  const updateWidgetPrice = async () => {
     if (returnInput.value <= pickupInput.value) {
       returnInput.value = toInputDate(new Date(new Date(pickupInput.value).getTime() + 86400000));
     }
     returnInput.min = pickupInput.value;
 
-    const result = pricing.calculate({
-      basePrice: listing.basePrice,
-      demandTier: listing.demandTier,
-      startDate: pickupInput.value,
-      endDate: returnInput.value,
-    });
+    // the price now comes from the server (POST /api/pricing/quote)
+    const myCall = quoteCounter + 1;
+    quoteCounter = myCall;
+    priceAmount.innerHTML = '<span class="unit">Calculating...</span>';
+
+    let result;
+    try {
+      result = await window.DR.api.post('/pricing/quote', {
+        listingId: listing.mongoId,
+        startDate: pickupInput.value,
+        endDate: returnInput.value,
+      });
+    } catch (err) {
+      if (myCall !== quoteCounter) return;
+      priceAmount.innerHTML = '<span class="unit">Price unavailable</span>';
+      breakdownEl.innerHTML = `<p class="muted">${escapeHTML(err.message)}</p>`;
+      return;
+    }
+    // a newer request was sent while this one was running, so ignore this answer
+    if (myCall !== quoteCounter) return;
 
     priceAmount.innerHTML = `${formatCurrency(result.finalTotal)} <span class="unit">for ${result.days} day${result.days > 1 ? 's' : ''}</span>`;
     priceAmount.classList.remove('price-tick');
