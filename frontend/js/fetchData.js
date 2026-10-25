@@ -1,33 +1,61 @@
 /**
  * fetchData.js
- * Every JSON read in DynamicRent goes through here so loading state,
+ * Every data read in DynamicRent goes through here so loading state,
  * caching, and error handling stay consistent across pages.
+ *
+ * Phase 2: the listings now come from the backend (MongoDB) instead of
+ * data/listings.json. Other content (categories, featured picks,
+ * testimonials, FAQ) is still static JSON.
  */
 
 const DRFetch = (() => {
   const cache = new Map();
+  const inflight = new Map();
+
+  const LISTINGS_PATH = 'data/listings.json';
 
   /**
-   * Load a local JSON file with fetch + async/await.
-   * Caches the parsed result in-memory for the lifetime of the page.
-   * @param {string} path - relative path to the JSON file
-   * @returns {Promise<any>}
+   * Load every listing from the API and give it the same shape the pages
+   * already expect: "id" keeps the Phase 1 id (l01, l02...) so favorites,
+   * recently viewed and details.html?id=l01 keep working. The real MongoDB
+   * id is kept as "mongoId" for pricing and booking calls.
+   */
+  const loadListingsFromApi = async () => {
+    const data = await window.DR.api.get('/listings', { limit: 100 });
+    return data.listings.map((l) => ({ ...l, id: l.legacyId || l._id, mongoId: l._id }));
+  };
+
+  const loadStaticJSON = async (path) => {
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    return response.json();
+  };
+
+  /**
+   * Load data by "path". data/listings.json is served by the API,
+   * everything else is read from the local JSON files.
+   * Results are cached in memory for the lifetime of the page, and two
+   * calls for the same path at the same time share one request.
    */
   const loadJSON = async (path) => {
     if (cache.has(path)) return cache.get(path);
+    if (inflight.has(path)) return inflight.get(path);
 
-    try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-      const data = await response.json();
-      cache.set(path, data);
-      return data;
-    } catch (err) {
-      console.error(`[fetchData] Could not load ${path}:`, err);
-      throw err;
-    }
+    const job = (path === LISTINGS_PATH ? loadListingsFromApi() : loadStaticJSON(path))
+      .then((data) => {
+        cache.set(path, data);
+        return data;
+      })
+      .catch((err) => {
+        console.error(`[fetchData] Could not load ${path}:`, err);
+        throw err;
+      })
+      .finally(() => inflight.delete(path));
+
+    inflight.set(path, job);
+    return job;
   };
 
   /** Load several JSON files in parallel; resolves to an array in the same order. */
@@ -54,10 +82,7 @@ const DRFetch = (() => {
       </div>`;
     if (onRetry) {
       // renderErrorCard() is a shared helper called for many different
-      // containers on a page (featured listings, testimonials, etc. can each
-      // fail and show their own error card), so this must stay scoped to
-      // THIS container — getElementById() can't target "the retry button
-      // inside this particular container."
+      // containers on a page, so this must stay scoped to THIS container.
       container.querySelector('[data-retry]')?.addEventListener('click', onRetry);
     }
   };
