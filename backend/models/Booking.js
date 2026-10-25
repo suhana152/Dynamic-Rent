@@ -25,6 +25,12 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
+    quantity: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 20,
+    },
     couponCode: {
       type: String,
       default: "",
@@ -37,6 +43,14 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    fullName: { type: String, trim: true, default: "" },
+    email: { type: String, trim: true, lowercase: true, default: "" },
+    phone: { type: String, trim: true, default: "" },
+    notes: { type: String, trim: true, default: "" },
+    payment: {
+      type: Object,
+      default: {},
     },
     status: {
       type: String,
