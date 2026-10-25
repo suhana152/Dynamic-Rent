@@ -22,3 +22,32 @@ exports.uploadAvatar = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// PUT /api/users/me  (logged-in users): change name and phone
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body || {};
+    const update = {};
+
+    if (name !== undefined) {
+      if (String(name).trim().length < 2) {
+        return res
+          .status(400)
+          .json({ message: "Name must be at least 2 characters" });
+      }
+      update.name = String(name).trim();
+    }
+    if (phone !== undefined) {
+      update.phone = String(phone).trim();
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, update, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
