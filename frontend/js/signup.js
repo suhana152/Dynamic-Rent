@@ -1,7 +1,7 @@
 /**
  * signup.js
  * Powers signup.html: validates the new-account form, checks password
- * strength, and creates a localStorage user record via auth.js.
+ * strength, and creates the account through the backend API (auth.js).
  */
 
 (() => {
@@ -56,20 +56,30 @@
     }
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validation.validateForm(fieldConfigs)) {
       ui.toast('Please fix the highlighted fields.', 'error');
       return;
     }
-    const result = auth.signup({
+
+    const submitBtn = qs('button[type="submit"]', form);
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account...';
+
+    // the first request can take ~30s if the free server was asleep
+    const result = await auth.signup({
       name: qs('#s-name').value.trim(),
       email: qs('#s-email').value.trim(),
       phone: qs('#s-phone').value.trim(),
       password: qs('#s-password').value,
     });
+
     if (!result.ok) {
       ui.toast(result.message, 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
       return;
     }
     ui.toast(`Welcome to DynamicRent, ${result.user.name.split(' ')[0]}.`, 'success');

@@ -1,7 +1,7 @@
 /**
  * login.js
- * Powers login.html: validates credentials against localStorage user
- * records via auth.js and redirects home on success.
+ * Powers login.html: validates the form, then logs in through the
+ * backend API (auth.js) and redirects home on success.
  */
 
 (() => {
@@ -34,18 +34,33 @@
     }
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validation.validateForm(fieldConfigs)) {
       ui.toast('Please fix the highlighted fields.', 'error');
       return;
     }
+
+    const submitBtn = qs('button[type="submit"]', form);
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+
     const rememberBox = qs('#l-remember');
     let remember = true;
     if (rememberBox) remember = rememberBox.checked;
-    const result = auth.login({ email: qs('#l-email').value.trim(), password: qs('#l-password').value, remember });
+
+    // the first request can take ~30s if the free server was asleep
+    const result = await auth.login({
+      email: qs('#l-email').value.trim(),
+      password: qs('#l-password').value,
+      remember,
+    });
+
     if (!result.ok) {
       ui.toast(result.message, 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
       return;
     }
     ui.toast(`Welcome back, ${result.user.name.split(' ')[0]}.`, 'success');
