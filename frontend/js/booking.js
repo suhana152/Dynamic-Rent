@@ -1,15 +1,14 @@
 /**
  * booking.js
- * Powers booking.html: populates the rental dropdown, keeps the booking
- * summary in sync with every field change, saves an in-progress draft to
- * sessionStorage so a refresh doesn't lose the form, validates every
- * field (including the demo card fields), runs the simulated payment
- * gateway with async/await, and persists the confirmed booking.
+ * Powers booking.html. Phase 2: the live price summary comes from the
+ * server (POST /api/pricing/quote) and the booking is saved in MongoDB
+ * (POST /api/bookings), where the server calculates the final total again.
+ * The card payment is still the simulated Phase 1 gateway.
  */
 
 (async () => {
-  const { qs, qsa, formatCurrency, toInputDate, getQueryParam, uid } = window.DR.utils;
-  const { core, pricing, validation, storage, ui, payment } = window.DR;
+  const { qs, formatCurrency, toInputDate, getQueryParam, debounce, escapeHTML } = window.DR.utils;
+  const { core, validation, storage, ui, payment, api, auth } = window.DR;
 
   const form = qs('#booking-form');
   if (!form) return; // not on the booking page
@@ -32,6 +31,11 @@
   const cardExpiryInput = qs('#f-card-expiry');
   const cardCvcInput = qs('#f-card-cvc');
 
+  // The server decides the demand level from the listing, so the manual
+  // "demand" override is hidden (otherwise a user could pick a cheaper tier).
+  const demandWrap = qs('#field-demand') || (demandSelect ? demandSelect.closest('.field') : null);
+  if (demandWrap) demandWrap.style.display = 'none';
+
   const listings = await core.getListings().catch(() => {
     const msg = window.location.protocol === 'file:'
       ? 'This page loads data with fetch(), which browsers block on file:// pages. Run a local server (see the banner above) and reload.'
@@ -47,14 +51,13 @@
   // ---- Restore an in-progress draft (sessionStorage), or prefill from a preset / logged-in user ----
   const draft = storage.getDraftBooking();
   const presetId = getQueryParam('id');
-  const currentUser = window.DR.auth?.currentUser();
+  const currentUser = auth.currentUser();
 
   if (draft) {
     rentalSelect.value = draft.rentalId || '';
     pickupInput.value = draft.pickup || '';
     returnInput.value = draft.ret || '';
     quantityInput.value = draft.quantity || 1;
-    demandSelect.value = draft.demand || '';
     couponInput.value = draft.coupon || '';
     nameInput.value = draft.name || '';
     emailInput.value = draft.email || '';
@@ -68,19 +71,15 @@
     emailInput.value = emailInput.value || currentUser.email;
     phoneInput.value = phoneInput.value || currentUser.phone || '';
   }
-  // Re-sync both custom dropdowns now that their values may have been set
-  // programmatically above (draft restore / URL preset), which doesn't
-  // fire a 'change' event on its own.
   window.DR.dropdown.enhance(rentalSelect);
-  window.DR.dropdown.enhance(demandSelect);
 
   const today = toInputDate(new Date());
   pickupInput.min = today;
   pickupInput.value = pickupInput.value || today;
   if (!returnInput.value) {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 3);
-    returnInput.value = toInputDate(tomorrow);
+    const later = new Date();
+    later.setDate(later.getDate() + 3);
+    returnInput.value = toInputDate(later);
   }
   returnInput.min = pickupInput.value;
 
@@ -99,7 +98,7 @@
       pickup: pickupInput.value,
       ret: returnInput.value,
       quantity: quantityInput.value,
-      demand: demandSelect.value,
+      demand: '',
       coupon: couponInput.value,
       name: nameInput.value,
       email: emailInput.value,
@@ -108,24 +107,43 @@
     });
   };
 
-  const updateSummary = () => {
+  // ---- Live price summary, calculated by the server ----
+  let lastQuote = null;
+  let quoteCounter = 0;
+
+  const updateSummary = async () => {
     const listing = getSelectedListing();
     if (!listing || !pickupInput.value || !returnInput.value || returnInput.value <= pickupInput.value) {
+      lastQuote = null;
       summaryEl.innerHTML = `<p class="muted">Choose a rental and valid dates to see your live price.</p>`;
       return;
     }
 
-    const demandTier = demandSelect && demandSelect.value ? demandSelect.value : listing.demandTier;
-    const quantity = Math.max(parseInt(quantityInput.value, 10) || 1, 1);
-    const result = pricing.calculate({
-      basePrice: listing.basePrice,
-      demandTier,
-      startDate: pickupInput.value,
-      endDate: returnInput.value,
-      couponCode: couponInput.value,
-    });
+    const myCall = quoteCounter + 1;
+    quoteCounter = myCall;
+    summaryEl.innerHTML = `<p class="muted">Calculating your price on the server...</p>`;
 
-    if (couponInput.value) {
+    let result;
+    try {
+      result = await api.post('/pricing/quote', {
+        listingId: listing.mongoId,
+        startDate: pickupInput.value,
+        endDate: returnInput.value,
+        couponCode: couponInput.value.trim(),
+      });
+    } catch (err) {
+      if (myCall !== quoteCounter) return;
+      lastQuote = null;
+      summaryEl.innerHTML = `<p class="muted">${escapeHTML(err.message)}</p>`;
+      return;
+    }
+    // a newer request was sent while this one was running, so ignore this answer
+    if (myCall !== quoteCounter) return;
+    lastQuote = result;
+
+    const quantity = Math.max(parseInt(quantityInput.value, 10) || 1, 1);
+
+    if (couponInput.value.trim()) {
       if (result.couponValid === false) {
         couponMsg.textContent = 'That code isn\u2019t valid or has expired.';
         couponMsg.style.color = 'var(--c-error)';
@@ -140,8 +158,8 @@
     const finalTotal = result.finalTotal * quantity;
 
     summaryEl.innerHTML = `
-      <h4>${listing.title}</h4>
-      <p class="muted" style="margin-top:2px">${listing.location} · ${result.days} day${result.days > 1 ? 's' : ''}${quantity > 1 ? ` · x${quantity}` : ''}</p>
+      <h4>${escapeHTML(listing.title)}</h4>
+      <p class="muted" style="margin-top:2px">${escapeHTML(listing.location)} · ${result.days} day${result.days > 1 ? 's' : ''}${quantity > 1 ? ` · x${quantity}` : ''}</p>
       <div class="breakdown-list">
         ${result.steps.map((s) => `
           <div class="row ${s.type}">
@@ -151,6 +169,7 @@
         ${quantity > 1 ? `<div class="row"><span>Quantity x${quantity}</span><span class="val"></span></div>` : ''}
         <div class="row total price-tick"><span>Total due</span><span class="val">${formatCurrency(finalTotal)}</span></div>
       </div>
+      <p class="muted" style="font-size:var(--fs-xs);margin-top:8px">Calculated live by the DynamicRent API.</p>
       <div class="split-toggle">
         <label for="split-people">Split evenly between</label>
         <div style="display:flex;align-items:center;gap:8px">
@@ -170,14 +189,22 @@
     updateSplit();
   };
 
-  [rentalSelect, pickupInput, returnInput, quantityInput, demandSelect, couponInput, nameInput, emailInput, phoneInput, notesInput].forEach((el) => {
+  // wait until the user stops typing before asking the server
+  const debouncedSummary = debounce(updateSummary, 350);
+
+  [rentalSelect, pickupInput, returnInput, quantityInput, couponInput].forEach((el) => {
     if (!el) return;
     el.addEventListener('input', () => {
       if (el === pickupInput) returnInput.min = pickupInput.value;
-      updateSummary();
+      debouncedSummary();
       saveDraft();
     });
-    el.addEventListener('change', () => { updateSummary(); saveDraft(); });
+    el.addEventListener('change', () => { debouncedSummary(); saveDraft(); });
+  });
+  [nameInput, emailInput, phoneInput, notesInput].forEach((el) => {
+    if (!el) return;
+    el.addEventListener('input', saveDraft);
+    el.addEventListener('change', saveDraft);
   });
   updateSummary();
 
@@ -226,9 +253,6 @@
     },
   };
 
-  // booking.html only has one booking form, and every input in it already has
-  // its own fixed id and its own variable above (nameInput, emailInput,
-  // cardNumberInput...), so we reuse those directly instead of querying again.
   const fieldInputs = {
     fullName: nameInput, email: emailInput, phone: phoneInput, rental: rentalSelect,
     pickup: pickupInput, ret: returnInput, quantity: quantityInput, cardName: cardNameInput,
@@ -238,71 +262,74 @@
     fieldInputs[key]?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
   });
 
+  const resetSubmitButton = () => {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Confirm and pay';
+  };
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const isValid = validation.validateForm(fieldConfigs);
     if (!isValid) {
       ui.toast('Please fix the highlighted fields.', 'error');
-      // This has to stay querySelector(): it means "whichever field
-      // currently has an error" (could be any of the 11 fields above,
-      // depending on what the user typed), not one fixed element with a
-      // known id, so getElementById() isn't able to express this lookup.
+      // "whichever field currently has an error" cannot be a fixed id,
+      // so this lookup stays querySelector()
       form.querySelector('.has-error input, .has-error select')?.focus();
       return;
     }
 
+    // bookings are saved in the database, so the user must be logged in
+    if (!auth.isLoggedIn()) {
+      ui.toast('Please log in to complete your booking.', 'error');
+      setTimeout(() => { window.location.href = 'login.html'; }, 900);
+      return;
+    }
+
     const listing = getSelectedListing();
-    const demandTier = demandSelect && demandSelect.value ? demandSelect.value : listing.demandTier;
     const quantity = Math.max(parseInt(quantityInput.value, 10) || 1, 1);
-    const result = pricing.calculate({
-      basePrice: listing.basePrice,
-      demandTier,
-      startDate: pickupInput.value,
-      endDate: returnInput.value,
-      couponCode: couponInput.value,
-    });
-    const finalTotal = result.finalTotal * quantity;
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = `<span class="dot-pulse">Processing payment...</span>`;
 
-    // ---- Real async/await flow against the simulated gateway ----
+    // ---- Simulated card payment (Phase 1 gateway) ----
     const paymentResult = await payment.processPayment({
       cardNumber: cardNumberInput.value,
       expiry: cardExpiryInput.value,
       cvc: cardCvcInput.value,
-      amount: finalTotal,
+      amount: lastQuote ? lastQuote.finalTotal * quantity : 0,
     });
 
     if (!paymentResult.ok) {
       ui.toast(paymentResult.message, 'error');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Confirm and pay';
+      resetSubmitButton();
       return;
     }
 
-    const booking = {
-      id: uid('booking'),
-      listingId: listing.id,
-      listingTitle: listing.title,
-      listingLocation: listing.location,
-      listingGradient: listing.gradient,
-      listingImage: listing.image,
-      fullName: nameInput.value.trim(),
-      email: emailInput.value.trim(),
-      phone: phoneInput.value.trim(),
-      pickupDate: pickupInput.value,
-      returnDate: returnInput.value,
-      quantity,
-      couponCode: couponInput.value.trim() || null,
-      notes: notesInput.value.trim(),
-      total: finalTotal,
-      status: 'confirmed',
-      payment: { brand: paymentResult.brand, last4: paymentResult.last4, transactionId: paymentResult.transactionId },
-      createdAt: new Date().toISOString(),
-    };
+    // ---- Save the booking in MongoDB. The server recalculates the price. ----
+    let booking;
+    try {
+      booking = await api.post('/bookings', {
+        listingId: listing.mongoId,
+        startDate: pickupInput.value,
+        endDate: returnInput.value,
+        couponCode: couponInput.value.trim(),
+        quantity,
+        fullName: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        notes: notesInput.value.trim(),
+        payment: {
+          brand: paymentResult.brand,
+          last4: paymentResult.last4,
+          transactionId: paymentResult.transactionId,
+        },
+      });
+    } catch (err) {
+      ui.toast(err.message, 'error');
+      resetSubmitButton();
+      return;
+    }
 
-    storage.addBooking(booking);
     storage.clearDraftBooking();
 
     ui.openModal(`
@@ -311,7 +338,7 @@
           ${core.iconSvg('<path d="M20 6 9 17l-5-5"/>', 28)}
         </div>
         <h3>Booking confirmed</h3>
-        <p class="muted" style="margin-top:8px">${listing.title} is booked for ${result.days} day${result.days > 1 ? 's' : ''}, total ${formatCurrency(finalTotal)}. Charged to ${paymentResult.brand} ending ${paymentResult.last4}. Confirmation #${paymentResult.transactionId}.</p>
+        <p class="muted" style="margin-top:8px">${escapeHTML(listing.title)} is booked for ${booking.days} day${booking.days > 1 ? 's' : ''}, total ${formatCurrency(booking.totalPrice)}. Charged to ${escapeHTML(paymentResult.brand)} ending ${escapeHTML(paymentResult.last4)}. Confirmation #${escapeHTML(paymentResult.transactionId)}.</p>
         <div class="hero-actions" style="justify-content:center;margin-top:var(--sp-lg)">
           <a href="my-bookings.html" class="btn btn-primary">View my bookings</a>
           <a href="index.html" class="btn btn-outline">Back to home</a>
@@ -320,10 +347,8 @@
 
     form.reset();
     window.DR.dropdown.enhance(rentalSelect);
-    window.DR.dropdown.enhance(demandSelect);
     Object.values(fieldConfigs).forEach(({ el }) => validation.clearField(el));
     updateSummary();
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Confirm and pay';
+    resetSubmitButton();
   });
 })();
