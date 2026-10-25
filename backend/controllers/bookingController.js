@@ -3,10 +3,23 @@ const Listing = require("../models/Listing");
 const Coupon = require("../models/Coupon");
 const { calculate } = require("../utils/pricing");
 
+const LISTING_FIELDS = "title image location category basePrice legacyId gradient";
+
 // POST /api/bookings  (logged-in users)
 exports.createBooking = async (req, res) => {
   try {
-    const { listingId, startDate, endDate, couponCode } = req.body;
+    const {
+      listingId,
+      startDate,
+      endDate,
+      couponCode,
+      quantity,
+      fullName,
+      email,
+      phone,
+      notes,
+      payment,
+    } = req.body || {};
 
     if (!listingId || !startDate || !endDate) {
       return res
@@ -41,13 +54,16 @@ exports.createBooking = async (req, res) => {
     }
 
     // Price is always calculated on the server, never trusted from the browser
-    const result = calculate({
+    const unit = calculate({
       basePrice: listing.basePrice,
       demandTier: listing.demandTier,
       startDate,
       endDate,
       coupon,
     });
+
+    const qty = Math.min(Math.max(parseInt(quantity, 10) || 1, 1), 20);
+    const total = Math.round(unit.finalTotal * qty * 100) / 100;
 
     // Double-booking check: any confirmed booking that overlaps these dates?
     const start = new Date(startDate);
@@ -64,21 +80,33 @@ exports.createBooking = async (req, res) => {
         .json({ message: "This listing is already booked for those dates" });
     }
 
+    // only keep the harmless parts of the simulated payment
+    const safePayment = payment
+      ? {
+          brand: String(payment.brand || "").slice(0, 20),
+          last4: String(payment.last4 || "").replace(/\D/g, "").slice(0, 4),
+          transactionId: String(payment.transactionId || "").slice(0, 60),
+        }
+      : {};
+
     const booking = await Booking.create({
       user: req.user._id,
       listing: listing._id,
       startDate: start,
       endDate: end,
-      days: result.days,
+      days: unit.days,
+      quantity: qty,
       couponCode: coupon ? coupon.code : "",
-      priceBreakdown: result,
-      totalPrice: result.finalTotal,
+      priceBreakdown: unit,
+      totalPrice: total,
+      fullName: fullName || req.user.name,
+      email: email || req.user.email,
+      phone: phone || req.user.phone || "",
+      notes: notes || "",
+      payment: safePayment,
     });
 
-    const populated = await booking.populate(
-      "listing",
-      "title image location category"
-    );
+    const populated = await booking.populate("listing", LISTING_FIELDS);
 
     res.status(201).json(populated);
   } catch (error) {
@@ -90,7 +118,7 @@ exports.createBooking = async (req, res) => {
 exports.getMyBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user._id })
-      .populate("listing", "title image location category basePrice")
+      .populate("listing", LISTING_FIELDS)
       .sort({ createdAt: -1 });
 
     res.json(bookings);
