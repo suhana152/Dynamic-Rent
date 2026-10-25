@@ -1,9 +1,11 @@
 const express = require("express");
 const upload = require("../middleware/upload");
-const { uploadAvatar } = require("../controllers/userController");
+const { uploadAvatar, updateProfile } = require("../controllers/userController");
 const { protect } = require("../middleware/auth");
 
 const router = express.Router();
+
+router.put("/me", protect, updateProfile);
 
 // protect runs first so req.user exists for the filename
 router.post(
