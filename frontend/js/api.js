@@ -31,11 +31,13 @@ const DRApi = (() => {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     const options = { method, headers };
-    if (body !== undefined) {
+      if (body instanceof FormData) {
+      // file upload: the browser sets the multipart header itself
+      options.body = body;
+    } else if (body !== undefined) {
       headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(body);
     }
-
     let response;
     try {
       response = await fetch(`${window.DR.config.API_URL}${path}`, options);

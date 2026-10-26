@@ -1,14 +1,13 @@
 /**
  * profile.js
- * Powers profile.html: shows a sign-in prompt for guests, or a full
- * account view for signed-in users — editable profile fields, stats,
- * favorites, recently viewed, and active price watches, all read from
- * localStorage.
+ * Powers profile.html. Phase 2: bookings, name/phone and the profile photo
+ * come from the backend (MongoDB). Favorites, recently viewed and price
+ * watches are per-browser preferences, so they stay in localStorage.
  */
 
 (async () => {
   const { qs, qsa, escapeHTML, formatCurrency } = window.DR.utils;
-  const { storage, ui, core, validation, auth } = window.DR;
+  const { storage, ui, core, validation, auth, api, config } = window.DR;
 
   const root = qs('#profile-root');
   if (!root) return;
@@ -29,11 +28,30 @@
     return;
   }
 
-  const bookings = storage.getBookingsForUser(user.email);
+  root.innerHTML = '<p class="muted">Loading your profile...</p>';
+
+  // ---- Data from the backend ----
+  let bookings = [];
+  let memberSinceDate = null;
+  try {
+    const [bookingData, me] = await Promise.all([
+      api.get('/bookings/my'),
+      api.get('/auth/me'),
+    ]);
+    bookings = bookingData;
+    memberSinceDate = me.createdAt;
+  } catch (err) {
+    // a 401 already sends the visitor to login.html inside api.js
+    root.innerHTML = `<div class="empty-state"><h3>Couldn't load your profile</h3><p>${escapeHTML(err.message)}</p><button class="btn btn-primary" onclick="window.location.reload()">Try again</button></div>`;
+    return;
+  }
+
   const favorites = storage.getFavorites();
   const recentlyViewed = storage.getRecentlyViewed();
   const priceWatches = storage.getPriceWatches();
-  const memberSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—';
+  const memberSince = memberSinceDate
+    ? new Date(memberSinceDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '—';
 
   // ---- Loyalty & rewards: points earned from confirmed bookings, tiered ----
   const TIERS = [
@@ -44,18 +62,27 @@
   ];
   const points = Math.round(bookings
     .filter((b) => b.status === 'confirmed')
-    .reduce((sum, b) => sum + b.total, 0) * 10);
+    .reduce((sum, b) => sum + b.totalPrice, 0) * 10);
   const currentTierIdx = TIERS.reduce((idx, tier, i) => (points >= tier.min ? i : idx), 0);
   const currentTier = TIERS[currentTierIdx];
   const nextTier = TIERS[currentTierIdx + 1];
   const progressPct = nextTier ? Math.min(((points - currentTier.min) / (nextTier.min - currentTier.min)) * 100, 100) : 100;
 
+  const avatarHTML = (u) => (u.avatar
+    ? `<img src="${escapeHTML(config.assetUrl(u.avatar))}" alt="${escapeHTML(u.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : escapeHTML(u.name.charAt(0).toUpperCase()));
+
   root.innerHTML = `
     <div class="account-header reveal">
-      <div class="account-avatar">${escapeHTML(user.name.charAt(0).toUpperCase())}</div>
+      <div class="account-avatar" id="p-avatar" style="overflow:hidden">${avatarHTML(user)}</div>
       <div>
-        <h2 style="margin:0">${escapeHTML(user.name)}</h2>
+        <h2 style="margin:0" id="p-title-name">${escapeHTML(user.name)}</h2>
         <p class="muted">${escapeHTML(user.email)} · Member since ${memberSince}</p>
+        <div style="margin-top:8px">
+          <input type="file" id="p-avatar-file" accept="image/jpeg,image/png,image/webp" style="display:none">
+          <button type="button" class="btn btn-outline btn-sm" id="p-avatar-btn">Change photo</button>
+          <span class="muted" style="font-size:var(--fs-xs);margin-left:8px">JPG, PNG or WEBP, up to 2 MB</span>
+        </div>
       </div>
     </div>
 
@@ -107,7 +134,7 @@
               <span class="error-msg"></span>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary mt-lg">Save changes</button>
+          <button type="submit" class="btn btn-primary mt-lg" id="p-save-btn">Save changes</button>
         </form>
       </div>
     </div>
@@ -136,31 +163,82 @@
   const hashTab = window.location.hash.replace('#', '');
   if (hashTab && qs(`[data-tab="${hashTab}"]`)) qs(`[data-tab="${hashTab}"]`).click();
 
-  // ---- Edit profile form ----
+  // ---- Profile photo upload (Multer on the server) ----
+  const avatarFile = qs('#p-avatar-file');
+  const avatarBtn = qs('#p-avatar-btn');
+  avatarBtn.addEventListener('click', () => avatarFile.click());
+  avatarFile.addEventListener('change', async () => {
+    const file = avatarFile.files[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      ui.toast('Please choose a JPG, PNG or WEBP image.', 'error');
+      avatarFile.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      ui.toast('That photo is larger than 2 MB.', 'error');
+      avatarFile.value = '';
+      return;
+    }
+
+    const originalText = avatarBtn.textContent;
+    avatarBtn.disabled = true;
+    avatarBtn.textContent = 'Uploading...';
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const data = await api.post('/users/avatar', formData);
+      const updated = storage.updateCurrentUser({ avatar: data.avatar });
+      qs('#p-avatar').innerHTML = avatarHTML(updated);
+      ui.toast('Profile photo updated.', 'success');
+      window.DR.ui.reflectAuthState();
+    } catch (err) {
+      ui.toast(err.message, 'error');
+    }
+    avatarBtn.disabled = false;
+    avatarBtn.textContent = originalText;
+    avatarFile.value = '';
+  });
+
+  // ---- Edit profile form (saved in MongoDB) ----
   const { rules } = validation;
   const fieldConfigs = {
     name: { el: qs('#p-field-name'), getValue: () => qs('#p-name').value, rules: [rules.required, rules.minLength(2)] },
     phone: { el: qs('#p-field-phone'), getValue: () => qs('#p-phone').value, rules: [rules.required, rules.phone] },
   };
-  // The profile form only ever renders once per page, and each input already
-  // has its own fixed id (p-name, p-phone), so it's safe to look each one up
-  // directly with getElementById() instead of searching inside `el`.
   const fieldInputIds = { name: 'p-name', phone: 'p-phone' };
   Object.entries(fieldConfigs).forEach(([key, { el, getValue, rules: ruleList }]) => {
     document.getElementById(fieldInputIds[key])?.addEventListener('blur', () => validation.validateField(el, getValue(), ruleList));
   });
-  qs('#profile-form').addEventListener('submit', (e) => {
+  qs('#profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validation.validateForm(fieldConfigs)) {
       ui.toast('Please fix the highlighted fields.', 'error');
       return;
     }
-    storage.updateCurrentUser({ name: qs('#p-name').value.trim(), phone: qs('#p-phone').value.trim() });
-    ui.toast('Profile updated.', 'success');
-    window.DR.ui.reflectAuthState();
+
+    const saveBtn = qs('#p-save-btn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    try {
+      const saved = await api.put('/users/me', {
+        name: qs('#p-name').value.trim(),
+        phone: qs('#p-phone').value.trim(),
+      });
+      const updated = storage.updateCurrentUser({ name: saved.name, phone: saved.phone });
+      qs('#p-title-name').textContent = saved.name;
+      if (!updated.avatar) qs('#p-avatar').innerHTML = avatarHTML(updated);
+      ui.toast('Profile updated.', 'success');
+      window.DR.ui.reflectAuthState();
+    } catch (err) {
+      ui.toast(err.message, 'error');
+    }
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save changes';
   });
 
-  // ---- Favorites & recently viewed grids (async data load) ----
+  // ---- Favorites & recently viewed grids ----
   const listings = await core.getListings();
   const favListings = favorites.map((id) => listings.find((l) => l.id === id)).filter(Boolean);
   const recentListings = recentlyViewed.map((id) => listings.find((l) => l.id === id)).filter(Boolean);
