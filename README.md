@@ -1,5 +1,131 @@
 # DynamicRent
 
+A rental marketplace (cars, villas, gear and more) built around one idea: **you should be able to see exactly how your price was calculated before you book.**
+
+- **Phase 1:** frontend with HTML5, CSS3 and vanilla JavaScript
+- **Phase 2:** Node.js + Express backend with MongoDB, deployed and connected to the same frontend
+
+## Live links
+
+| What | Link |
+|---|---|
+| Website (frontend, Vercel) | https://dynamic-rent-wvj6.vercel.app/ |
+| API (backend, Render) | https://dynamicrent-api.onrender.com |
+| Health check | https://dynamicrent-api.onrender.com/api/health |
+
+> The API runs on a free Render instance, so the first request after a period of inactivity can take 30-60 seconds while the server wakes up.
+
+## Features
+
+- Browse and filter 37 listings across 16 categories (data served from MongoDB)
+- **Transparent dynamic pricing engine**, calculated on the server: base price x days, demand multiplier, lead-time adjustment, weekend premium, duration discount and coupon codes
+- Sign up and log in with **bcrypt** password hashing and **JWT** authentication
+- Bookings saved in MongoDB, with a double-booking (date overlap) check
+- My Bookings page with cancel
+- Profile page with editable details and **profile photo upload (Multer)**
+- Coupons stored in the database and verified on the server
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | HTML5, CSS3, vanilla JavaScript (ES6+) |
+| Backend | Node.js, Express |
+| Database | MongoDB Atlas, Mongoose |
+| Auth | JWT, bcryptjs |
+| File upload | Multer |
+| Deployment | Vercel (frontend), Render (backend) |
+| API testing | Thunder Client / Postman |
+
+## Architecture (MVC)
+
+```
+Dynamic-Rent/
+├── backend/
+│   ├── config/        database connection
+│   ├── models/        M: Mongoose schemas (User, Listing, Booking, Coupon)
+│   ├── controllers/   C: business logic for each route
+│   ├── routes/        URL to controller mapping
+│   ├── middleware/    JWT auth (protect, adminOnly) and Multer upload
+│   ├── utils/         pricing engine
+│   ├── seed.js        loads the 37 listings into MongoDB
+│   ├── seedCoupons.js loads the coupon codes
+│   └── server.js      Express app entry point
+└── frontend/          V: the views (HTML, CSS, JS)
+    ├── js/config.js   the API address lives here
+    └── js/api.js      every call to the backend goes through this file
+```
+
+## API endpoints
+
+Base URL: `https://dynamicrent-api.onrender.com/api`
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | none | Server status |
+| POST | `/auth/register` | none | Create an account |
+| POST | `/auth/login` | none | Log in and receive a JWT |
+| GET | `/auth/me` | token | Current user |
+| GET | `/listings` | none | List with `category`, `city`, `search`, `minPrice`, `maxPrice`, `sort`, `page`, `limit` |
+| GET | `/listings/:id` | none | One listing |
+| POST | `/listings` | admin | Create a listing |
+| PUT | `/listings/:id` | admin | Update a listing |
+| DELETE | `/listings/:id` | admin | Delete a listing |
+| POST | `/pricing/quote` | none | Full price breakdown for a listing and dates |
+| POST | `/bookings` | token | Create a booking (price recalculated on the server) |
+| GET | `/bookings/my` | token | The logged-in user's bookings |
+| PATCH | `/bookings/:id/cancel` | token | Cancel a booking |
+| PUT | `/users/me` | token | Update name and phone |
+| POST | `/users/avatar` | token | Upload a profile photo (multipart, JPG/PNG/WEBP, max 2 MB) |
+
+## Run it locally
+
+### Backend
+
+```bash
+cd backend
+npm install
+```
+
+Create `backend/.env`:
+
+```
+PORT=5001
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=a_long_random_secret
+```
+
+Load the data and start the server:
+
+```bash
+node seed.js
+node seedCoupons.js
+npm run dev
+```
+
+### Frontend
+
+Open `frontend/index.html` with a local server (for example the VS Code **Live Server** extension).
+To use your local backend, change `API_URL` in `frontend/js/config.js` to `http://localhost:5001/api`.
+
+## Security notes
+
+- Passwords are hashed with bcrypt and never returned by the API
+- Protected routes check a JWT sent as `Authorization: Bearer <token>`
+- The final price is always recalculated on the server; the browser's price is never trusted
+- Card payment is a **simulated** gateway (no real charge is made)
+- `.env` is never committed
+
+## Authors
+
+Built for the Back End Engineering course (CE2).
+
+---
+
+# Phase 1 notes (original README)
+
+# DynamicRent
+
 A rental marketplace concept — cars, villas, gear, and more — built around one idea: **you should be able to see exactly how your price was calculated before you book.**
 
 This is **Phase 1**: a frontend-only demo built with HTML5, CSS3, and vanilla JavaScript (ES6+). No frameworks, no build step, no backend — just a local JSON "database" and `localStorage` standing in for a real API, so the whole experience can be explored end to end in a browser.
