@@ -1,1 +1,10 @@
 .DS_Store
+
+.vscode/
+node_modules/
+.env
+
+backend/uploads/
+
+.postman/
+postman/
