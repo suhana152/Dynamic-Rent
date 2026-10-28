@@ -1,4 +1,7 @@
 const Listing = require("../models/Listing");
+// user ka text regex mein safe banata hai ("(" jaise se crash nahi hoga)
+const escapeRegex = (text) =>
+  String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // GET /api/listings?category=&city=&search=&minPrice=&maxPrice=&sort=&page=&limit=
 exports.getListings = async (req, res) => {
@@ -16,9 +19,9 @@ exports.getListings = async (req, res) => {
 
     const filter = {};
 
-    if (category) filter.category = category.toLowerCase();
-    if (city) filter.location = new RegExp(city, "i");
-    if (search) filter.title = new RegExp(search, "i");
+    if (category) filter.category = String(category).toLowerCase();
+    if (city) filter.location = new RegExp(escapeRegex(city), "i");
+    if (search) filter.title = new RegExp(escapeRegex(search), "i");
 
     if (minPrice || maxPrice) {
       filter.basePrice = {};
@@ -31,8 +34,8 @@ exports.getListings = async (req, res) => {
     if (sort === "price_desc") sortBy = { basePrice: -1 };
     if (sort === "rating") sortBy = { rating: -1 };
 
-    const pageNum = Math.max(Number(page), 1);
-    const limitNum = Math.max(Number(limit), 1);
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 12, 1), 100);
 
     const total = await Listing.countDocuments(filter);
     const listings = await Listing.find(filter)
