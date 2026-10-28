@@ -174,11 +174,11 @@ profile.html, 404.html
 
 ## 🚀 Getting started
 
-Clone the repo and serve the `DynamicRent` folder over HTTP — **don't just double-click `index.html`.**
+Clone the repo and serve the `frontend` folder over HTTP — **don't just double-click `index.html`.**
 
 ```bash
 git clone https://github.com/suhana152/Dynamic-Rent.git
-cd Dynamic-Rent/DynamicRent
+cd Dynamic-Rent/frontend
 ```
 
 ### ⚠️ Why a local server?
