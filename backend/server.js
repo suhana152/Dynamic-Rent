@@ -18,7 +18,22 @@ app.use((req, res, next) => {
   console.log(req.method, req.url);
   next();
 });
-
+// Home route: a friendly page instead of "Route not found"
+app.get("/", (req, res) => {
+  res.json({
+    name: "DynamicRent API",
+    status: "running",
+    health: "/api/health",
+    docs: "See the README on GitHub for all endpoints",
+    endpoints: [
+      "/api/auth",
+      "/api/listings",
+      "/api/pricing/quote",
+      "/api/bookings",
+      "/api/users",
+    ],
+  });
+});
 // Test route
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "DynamicRent server is running" });
