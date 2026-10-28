@@ -157,7 +157,10 @@ exports.cancelBooking = async (req, res) => {
     await booking.save();
 
     res.json(booking);
-  } catch (error) {
-    res.status(400).json({ message: "Invalid booking id" });
+    } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ message: "Invalid booking id" });
+    }
+    res.status(500).json({ message: error.message });
   }
 };

@@ -46,6 +46,13 @@ app.use("/api/pricing", require("./routes/pricingRoutes"));
 app.use("/api/bookings", require("./routes/bookingRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 
+// galat JSON bhejne par HTML ki jagah JSON error mile
+app.use((err, req, res, next) => {
+  if (err.type === "entity.parse.failed" || err instanceof SyntaxError) {
+    return res.status(400).json({ message: "Invalid JSON in request body" });
+  }
+  next(err);
+});
 // 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

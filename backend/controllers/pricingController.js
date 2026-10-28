@@ -5,7 +5,7 @@ const { calculate } = require("../utils/pricing");
 // POST /api/pricing/quote
 exports.getQuote = async (req, res) => {
   try {
-    const { listingId, startDate, endDate, couponCode } = req.body;
+        const { listingId, startDate, endDate, couponCode } = req.body || {};
 
     if (!listingId || !startDate || !endDate) {
       return res
